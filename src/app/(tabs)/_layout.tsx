@@ -1,37 +1,52 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs } from 'expo-router'
+import { FontAwesome } from '@expo/vector-icons'
+import BottomSheet from '@gorhom/bottom-sheet'
+import React, { useRef } from 'react'
+import { Alert, View } from 'react-native'
+import { Menu } from '@/components/Menu'
+import { theme } from '@/theme'
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+export default function TabsLayout() {
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+    const bottomSheetRef = useRef<BottomSheet>(null)
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+    const handleBottomSheetOpen = () => bottomSheetRef.current?.expand()
+    const handleBottomSheetClose = () => bottomSheetRef.current?.snapToIndex(0)
+
+    return (
+        <View style={{ flex: 1 }}>
+
+            <Tabs screenOptions={{
+                headerShown: false, 
+                tabBarShowLabel: false,
+                 tabBarActiveTintColor: theme.colors.white,
+                tabBarInactiveTintColor: theme.colors.gray[600],
+                tabBarStyle: {
+                    backgroundColor: theme.colors.black,
+                    borderColor: theme.colors.black,
+                  },
+            }}>
+                <Tabs.Screen name='index'
+                    options={{
+                        tabBarIcon: ({ size, color }) => <FontAwesome name='history' size={size} color={color} />
+                    }} />
+                <Tabs.Screen name='reader' options={{
+                    tabBarIcon: ({ size, color }) => <FontAwesome name='plus-square-o' size={size} color={color} />
+                }}
+                    listeners={() => ({
+                        tabPress: (event) => {
+                            event.preventDefault()
+                            handleBottomSheetOpen()
+                        }
+                    })}
+                />
+                <Tabs.Screen name='profile' options={{
+                    tabBarIcon: ({ size, color }) => <FontAwesome name='user' size={size} color={color} />
+                }} />
+
+            </Tabs>
+            <Menu ref={bottomSheetRef} onClose={handleBottomSheetClose} />
+
+        </View>
+    )
 }
